@@ -8,7 +8,7 @@ With my application you can search for different types of recipes that are comin
 
 ## Welke actoren zitten er in jouw applicatie? (actor diagram)
 ![Actor Diagram](public/img/actor-diagram.jpg)
-Format: ![Actor Diagram](public/img/actor-diagram.jpg)
+Format: ![Actor Diagram](url)
 
 ## Welke API wordt gebruikt en wat zijn de beperkingen? (rate limit)
 This application uses the Edamam API. Edamam is offering different API’s for different use cases. For example they offering the Food Database Lookup, Food Entity Extraction, Recipe Licensing and a couple others. The application uses the free version of the API. A disadvantage is you can do 5000 requests per month or only 5 requests per minute.
