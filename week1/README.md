@@ -1,14 +1,13 @@
 # Week 1 - Hello API 🐒
 
 ## Link to demo
-[Link to Recipe searcher!](http://www.wafs.tjebbemarchand.nl)
+[Link to Recipe searcher!](https://tjebbemarchand.github.io/tjebbe-wafs.github.io/week1/)
 
 ## Wat doet jou app, wat is het doel? (passing butter)
 With my application you can search for different types of recipes that are coming from the Edamam website. If you search for ‘Pizza’ for example, you get the first 10 results that are the most relevant. When clicking on one of the recipes, you get all the ingredients that are needed to make that meal.
 
 ## Welke actoren zitten er in jouw applicatie? (actor diagram)
-![Actor Diagram](week1/actor-diagram.jpg)
-Format: ![Actor Diagram - Tjebbe](week1/actor-diagram.jpg)
+
 
 ## Welke API wordt gebruikt en wat zijn de beperkingen? (rate limit)
 This application uses the Edamam API. Edamam is offering different API’s for different use cases. For example they offering the Food Database Lookup, Food Entity Extraction, Recipe Licensing and a couple others. The application uses the free version of the API. A disadvantage is you can do 5000 requests per month or only 5 requests per minute.
