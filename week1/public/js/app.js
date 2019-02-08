@@ -43,10 +43,10 @@ function searchRecipe(recipe) {
 
     // API information
     const search = recipe;
-    const proxy = 'https://cors-anywhere.herokuapp.com/'
+    // const proxy = 'https://cors-anywhere.herokuapp.com/'
     const appID = 'c83b21f1';
     const appKey = 'f1e2173ac672d053a64913c59ad6932b';
-    const url = `${proxy}https://api.edamam.com/search?q=${search}&app_id=${appID}&app_key=${appKey}`;
+    const url = `https://api.edamam.com/search?q=${search}&app_id=${appID}&app_key=${appKey}`;
 
     // API request
     let request = new XMLHttpRequest();
