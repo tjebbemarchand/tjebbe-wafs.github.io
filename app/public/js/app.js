@@ -8,7 +8,10 @@
             sortBy: 'name',
             filterBy: undefined,
         },
-        recipes: []
+        recipes: {
+            searchTerm: '',
+            recipes: []
+        }
     };
 
     // DOM object.
@@ -36,15 +39,15 @@
             // console.log(url);
             return url;
         },
-        get: function () {
-            var getData = new Promise(function (resolve, reject) {
-                var request = new XMLHttpRequest();
+        getRecipes: function () {
+            const getData = new Promise(function (resolve, reject) {
+                let request = new XMLHttpRequest();
                 request.open('GET', api.createURL(), true)
 
                 request.onload = function () {
                     if (request.status >= 200 && request.status < 400) {
-                        const data = api.parse(this.response);
-                        resolve(data);
+                        const dataResponse = data.parse(this.response);
+                        resolve(dataResponse);
                     } else {
                         reject(error);
                     }
@@ -57,32 +60,62 @@
                 request.send();
             });
 
-            getData.then(data => {
-                this.store(data);                
-            })
-            .then(() => {
-                render.recipes();
-            });
+            getData.then(dataResponse => {
+                    data.store(dataResponse.hits);
+                    // data.save(dataResponse);
+                })
+                .then(() => {
+                    render.recipes();
+                });
+        }
+    };
+
+    const data = {
+        search: function () {
+            const localStorageData = this.load();
+            if (localStorageData !== []) {
+                if (localStorageData.searchTerm === state.filters.search) {
+                    console.log('check');
+                    console.log(localStorageData.recipes);
+                    /* this.store(localStorageData.recipes);
+                    render.recipes(); // Needs 'state.recipes' to render...... */
+                }
+            } else {
+                api.getRecipes();
+            }
+        },
+        load: function () {
+            const recipesJSON = localStorage.getItem('recipes');
+
+            try {
+                return recipesJSON ? data.parse(recipesJSON) : [];
+            } catch (e) {
+                return [];
+            }
         },
         parse: function (response) {
             return JSON.parse(response);
         },
-        store: function (data) {
-            data.hits.forEach(hit => {
-                state.recipes.push({
+        store: function (recipeData) {
+            state.recipes.searchTerm = state.filters.search;
+            recipeData.forEach(hit => {
+                state.recipes.recipes.push({
                     title: hit.recipe.label,
                     image: hit.recipe.image,
                     ingredients: hit.recipe.ingredientLines,
                     calories: hit.recipe.calories
                 });
             });
+        },
+        save: function () {
+            localStorage.setItem('recipes', JSON.stringify(state.recipes));
         }
     };
 
     // Render actor
     const render = {
         recipes: function () {
-            state.recipes.forEach((recipe) => {
+            state.recipes.recipes.forEach((recipe) => {
                 const imageEl = document.createElement('img');
                 imageEl.src = recipe.image;
 
@@ -101,7 +134,8 @@
     dom.searchRecipeBtn.addEventListener('click', (e) => {
         e.preventDefault();
         state.filters.search = dom.inputRecipeField.value;
-        api.get();
+        // data.search();
+        api.getRecipes();
         dom.inputRecipeField.value = '';
     });
 })();
