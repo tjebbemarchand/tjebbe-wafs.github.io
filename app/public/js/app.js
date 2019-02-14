@@ -1,20 +1,20 @@
 'use strict';
 
 (function () {
-    // Filters object.
+    // State object with filters and temporary place for the recipes.
     const state = {
         filters: {
-            search: '',
+            searchTerm: '',
             sortBy: 'name',
             filterBy: undefined,
         },
         recipes: {
-            searchTerm: '',
+            recipe: '',
             recipes: []
         }
     };
 
-    // DOM object.
+    // DOM object with all the DOM objects.
     const dom = {
         app: document.querySelector('main'),
         container: document.querySelector('.container'),
@@ -23,7 +23,7 @@
         searchRecipeBtn: document.querySelector('#searchRecipe')
     };
 
-    // API actor
+    // API object
     const api = {
         proxy: 'https://cors-anywhere.herokuapp.com/',
         url: 'https://api.edamam.com/search?q=',
@@ -31,6 +31,7 @@
             app_id: 'c83b21f1',
             app_key: 'f1e2173ac672d053a64913c59ad6932b',
         },
+        // Create url based on the entries object.
         createURL: function () {
             const URLOptions = Object.entries(this.entries)
                 .map(entry => entry.join("="))
@@ -39,6 +40,7 @@
             // console.log(url);
             return url;
         },
+        // Get new recipes from the api.
         getRecipes: function () {
             const getData = new Promise(function (resolve, reject) {
                 let request = new XMLHttpRequest();
@@ -62,8 +64,7 @@
 
             getData.then(dataResponse => {
                     data.store(dataResponse.hits);
-                    // data.save(dataResponse);
-                })
+                    data.save(dataResponse);                })
                 .then(() => {
                     render.recipes();
                 });
@@ -71,21 +72,20 @@
     };
 
     const data = {
-        search: function () {
-            const localStorageData = this.load();
-            if (localStorageData !== []) {
-                if (localStorageData.searchTerm === state.filters.search) {
-                    console.log('check');
-                    console.log(localStorageData.recipes);
-                    /* this.store(localStorageData.recipes);
-                    render.recipes(); // Needs 'state.recipes' to render...... */
-                }
-            } else {
-                api.getRecipes();
-            }
-        },
+        // Search and load the recipes from localStorage.
         load: function () {
-            const recipesJSON = localStorage.getItem('recipes');
+            const localStorageData = localStorage.getItem('recipes');
+            const recipes = data.parse(localStorageData);
+            
+
+            if (recipes === []) {
+                api.getRecipes();
+            } else {
+                if (recipes.recipe === state.filters.searchTerm) {
+                    this.store(recipes.recipes);
+                    // render.recipes(); // Needs 'state.recipes' to render......
+                }
+            }
 
             try {
                 return recipesJSON ? data.parse(recipesJSON) : [];
@@ -93,20 +93,29 @@
                 return [];
             }
         },
+        // Parse the recipes before use.
         parse: function (response) {
             return JSON.parse(response);
         },
+        extract: function(data) {
+            const filteredData = data.map((hit) => {
+                
+            });
+        },
+        // Store the recipes in the temporary object.
         store: function (recipeData) {
-            state.recipes.searchTerm = state.filters.search;
+            state.recipes.recipe = state.filters.search;
+            /*  BELOW NOT WORKING WITH LOCALSTORAGE DATA!!!!!! REFACTOR  */
             recipeData.forEach(hit => {
                 state.recipes.recipes.push({
-                    title: hit.recipe.label,
-                    image: hit.recipe.image,
-                    ingredients: hit.recipe.ingredientLines,
-                    calories: hit.recipe.calories
+                    title: hit.recipe ? hit.recipe.label : hit.title,
+                    image: hit.recipe ? hit.recipe.image : hit.image,
+                    ingredients: hit.recipe ? hit.recipe.ingredientLines : hit.ingredients,
+                    calories: hit.recipe ? hit.recipe.calories : hit.calories
                 });
             });
         },
+        // Save the recipes in localStorage.
         save: function () {
             localStorage.setItem('recipes', JSON.stringify(state.recipes));
         }
@@ -114,6 +123,7 @@
 
     // Render actor
     const render = {
+        // Render the recipes on the screen.
         recipes: function () {
             state.recipes.recipes.forEach((recipe) => {
                 const imageEl = document.createElement('img');
@@ -126,15 +136,17 @@
                 imageEl.insertAdjacentElement('afterend', titleEl);
             });
         },
+        // Clear the container.
         clear: function () {
             container.innerHTML = ''; // Clear the search results.
         }
     };
 
+    // Click event listener for the search button.
     dom.searchRecipeBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        state.filters.search = dom.inputRecipeField.value;
-        // data.search();
+        state.filters.searchTerm = dom.inputRecipeField.value;
+        // data.load();
         api.getRecipes();
         dom.inputRecipeField.value = '';
     });
