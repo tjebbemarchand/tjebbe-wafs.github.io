@@ -1,3 +1,17 @@
-.container {
-    background-color: red;
+.recipe {
+    width: 23%;
+    display: inline-block;
+    background-color: #fff;
+    margin: 20px 20px 20px 0;
+    border: 1px solid rgb(148, 148, 148);
+}
+
+.recipe__img {
+    width: 100%;
+}
+
+.recipe__title {
+    margin: 0;
+    padding: 10px 0;
+    text-align: center;
 }
