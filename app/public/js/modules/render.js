@@ -1,17 +1,16 @@
 'use strict';
 
 /* beautify preserve:start */
-import { dom } from './dom.js';
-import { state } from './state.js';
-import { api } from './api.js';
-import { router } from './router.js';
+import { app } from './app.js';
 import { data } from './data.js';
+import { router } from './router.js';
+import { api } from './api.js';
 /* beautify preserve:end */
 
 // Render actor
 export const render = {
     homePage: function () {
-        dom.app.classList.add('homepage-background');
+        app.dom.app.classList.add('homepage-background');
         const homePage = `
             <form id="searchForm">
                 <h2>Search for any type of recipe</h2>
@@ -20,39 +19,29 @@ export const render = {
             </form>
         `;
 
-        render.clearBackBtn();
-        dom.app.insertAdjacentHTML('afterbegin', homePage);
+        app.dom.app.insertAdjacentHTML('afterbegin', homePage);
         
         document.querySelector('.search-recipe').addEventListener('click', function (e) {
             e.preventDefault();
-            const input = document.querySelector('#inputRecipe').value;
+            const input = document.querySelector('#inputRecipe').value.toLowerCase();
             if(input !== '') {
-                render.clear();
-                render.renderLoader();
-                state.data.searchTerm = input.toLowerCase();
-                // data.load();
-                api.get();
+                window.location.hash = `/overviewPage/${input}`;
             }
         });
     },
-    overviewPage: function () {
-        render.clear();
-        render.clearBackBtn();
-        render.renderBackBtn('homePage');        
-        render.clearLoader();
-
-        this.documentTitle(`Recipe searcher - ${state.data.searchTerm}`);
+    overviewPage: function (recipes) {
+        this.documentTitle(`Recipe searcher - ${app.state.data.searchTerm}`);
 
         const title = document.createElement('h1');
         title.classList = 'search-results-title';
-        title.textContent = `Search results for: ${state.data.searchTerm}`;
-        dom.app.appendChild(title);
+        title.textContent = `Search results for: ${app.state.data.searchTerm}`;
+        app.dom.app.appendChild(title);
         
         const recipeContainer = document.createElement('section');
         recipeContainer.classList = 'recipe-container';
-        dom.app.appendChild(recipeContainer);
+        app.dom.app.appendChild(recipeContainer);
 
-        state.data.recipes.forEach(function (recipe) {
+        recipes.forEach(function (recipe) {
             const recipeEl = `
                 <a href="#${recipe.recipe__id}" class="recipe__link">
                     <article class="recipe-thumb">
@@ -69,19 +58,12 @@ export const render = {
             recipeLink.addEventListener('click', function (e) {
                 e.preventDefault();
                 const id = e.currentTarget.hash.split('#')[1];
-                router.detailPage(id);
+                window.location.hash = `/detailPage/${id}`;
+                // router.detailPage(id);
             });
         });
     },
-    detailPage: function (id) {
-        render.clearBackBtn();
-        render.renderBackBtn('overviewPage');
-
-        // MOVE TO ROUTER OBJECT.
-        const recipe = state.data.recipes.find(function (recipe) {
-            return recipe.recipe__id === id;
-        });
-
+    detailPage: function (recipe) {
         const recipeEl = `
             <div class="recipe-details">
                 <div class="recipe-details__image-container">
@@ -106,39 +88,39 @@ export const render = {
             </div>
         `;
 
-        dom.app.insertAdjacentHTML('afterbegin', recipeEl);
+        app.dom.app.insertAdjacentHTML('afterbegin', recipeEl);
     },
     documentTitle: function(title) {
         document.title = title;
     },
     // Clear the container.
     clear: function () {
-        if(dom.app.classList.contains('homepage-background')) dom.app.classList.remove('homepage-background');
-        while (dom.app.hasChildNodes()) {
-            dom.app.removeChild(dom.app.firstChild);
+        if(app.dom.app.classList.contains('homepage-background')) app.dom.app.classList.remove('homepage-background');
+        while (app.dom.app.hasChildNodes()) {
+            app.dom.app.removeChild(app.dom.app.firstChild);
         }
     },
-    renderBackBtn: function(page) {
-        const backBtn = `<img class="page-back" src="../../../public/img/back-arrow.svg">`;
-        dom.body.insertAdjacentHTML('afterbegin', backBtn);
+    // renderBackBtn: function(page) {
+    //     const backBtn = `<img class="page-back" src="../../../public/img/back-arrow.svg">`;
+    //     app.dom.body.insertAdjacentHTML('afterbegin', backBtn);
 
-        dom.body.querySelector('.page-back').addEventListener('click', function(e) {
-            e.preventDefault();
+    //     app.dom.body.querySelector('.page-back').addEventListener('click', function(e) {
+    //         e.preventDefault();
             
-            switch(page) {
-                case 'overviewPage':
-                  router.overviewPage();
-                  break;
-                case 'homePage':
-                    router.homePage();
-                    break;
-            }
-        });
-    },
-    clearBackBtn: function() {
-        const backBtn = document.querySelector('.page-back');
-        if(backBtn) backBtn.parentElement.removeChild(backBtn);
-    },
+    //         switch(page) {
+    //             case 'overviewPage':
+    //                 window.location.hash = '/overviewPage';
+    //                 break;
+    //             case 'homePage':
+    //                 window.location.hash = '/';
+    //                 break;
+    //         }
+    //     });
+    // },
+    // clearBackBtn: function() {
+    //     const backBtn = document.querySelector('.page-back');
+    //     if(backBtn) backBtn.parentElement.removeChild(backBtn);
+    // },
     renderLoader: function () {
         const loader = `
             <div class="loader">
@@ -149,7 +131,7 @@ export const render = {
                 </svg>
             </div>
         `;
-        dom.app.insertAdjacentHTML('afterbegin', loader);
+        app.dom.app.insertAdjacentHTML('afterbegin', loader);
     },
     clearLoader: function() {
         const loader = document.querySelector('.loader');
@@ -178,7 +160,7 @@ export const render = {
 // RENDER TEMPLATE
 /* const recipeLink = document.createElement('a');
 recipeLink.classList = 'recipe__id';
-dom.app.appendChild(recipeLink);
+app.dom.app.appendChild(recipeLink);
 
 const recipeArticle = document.createElement('article');
 recipeArticle.classList = 'recipe';
@@ -205,4 +187,4 @@ const directives = {
     }
 };
 
-Transparency.render(dom.app, state.data.recipes, directives); */
+Transparency.render(app.dom.app, app.state.data.recipes, directives); */

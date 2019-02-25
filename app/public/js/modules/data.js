@@ -1,33 +1,27 @@
 'use strict';
 
-import { state } from './state.js';
-import { render } from './render.js';
+/* beautify preserve:start */
+import { app } from './app.js';
 import { api } from './api.js';
+import { render } from './render.js';
+/* beautify preserve:end */
 
 export const data = {
     // Search and load the recipes from localStorage.
-    load: function () {
-        let localStorageData = localStorage.getItem('recipes');
+    handle: async function () {
+        let localStorageData = await localStorage.getItem(api.entries.q);
         localStorageData = JSON.parse(localStorageData);
-        console.log(localStorageData);
-        console.log(state.data.searchTerm);
-        if(!localStorageData) {
-            api.get();
-        } else if(localStorageData) {
-            const recipes = localStorageData.find(function (recipe) {
-                return recipe.searchTerm === state.data.searchTerm;
-            });
 
-            console.log(recipes);
+        let data;
+        if (localStorageData) {
+            data = localStorageData;
+        } else {
+            const recipes = await api.get();
+            data = recipes;
         }
 
-        /* 
-
-        try {
-            return recipesJSON ? data.parse(recipesJSON) : [];
-        } catch (e) {
-            return [];
-        } */
+        await render.clear();
+        await render.overviewPage(data);
     },
     // Parse the recipes before use.
     parse: function (response) {
@@ -49,12 +43,12 @@ export const data = {
     },
     // Store the recipes in the temporary object.
     store: function (recipeData) {
-        while(state.data.recipes > 0) {
-            state.data.recipes.pop();
+        while (app.state.data.recipes > 0) {
+            app.state.data.recipes.pop();
         }
 
         recipeData.forEach(function (recipe) {
-            state.data.recipes.push({
+            app.state.data.recipes.push({
                 recipe__id: recipe.recipe__id,
                 recipe__title: recipe.recipe__title,
                 recipe__image: recipe.recipe__image,
@@ -67,10 +61,8 @@ export const data = {
         });
     },
     // Save the recipes in localStorage.
-    save: function () {
-        const dataToSave = [];
-        dataToSave.push([state.data]);
-        localStorage.setItem('recipes', JSON.stringify(dataToSave));
+    save: function (recipes) {
+        localStorage.setItem(app.state.data.searchTerm, JSON.stringify(recipes));
     },
     delete: function () {
         localStorage.removeItem('recipes');

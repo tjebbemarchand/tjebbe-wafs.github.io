@@ -1,30 +1,29 @@
 'use strict';
 
 import { render } from './render.js';
+import { data } from './data.js';
+import { app } from './app.js';
+import { api } from './api.js';
 
 export const router = {
-    homePage: function () {
-        routie('/', function () {
-            window.location.hash = '/';
-            render.clear();
-            render.homePage();
+    routes: function() {
+        routie({
+            '/': function () {
+                render.clear();
+                render.homePage();
+            },
+            '/overviewPage/:input': function (input) {
+                api.entries.q = input;
+                render.renderLoader();
+                data.handle();
+            },
+            '/detailPage/:id': function (id) {
+                const recipe = app.state.data.recipes.find(function (recipe) {
+                    return recipe.recipe__id === id;
+                });
+                render.clear();
+                render.detailPage(recipe);
+            }
         });
-        routie('/');
-    },
-    overviewPage: function () {
-        routie("overviewPage", function() {
-            window.location.hash = 'overviewPage';
-            render.clear();
-            render.overviewPage();
-        });
-        routie('overviewPage');
-    },
-    detailPage: function (id) {
-        routie(":id", function(id) {
-            window.location.hash = `detailPage/${id}`
-            render.clear();
-            render.detailPage(id);
-        });
-        routie(id);
     }
 };
