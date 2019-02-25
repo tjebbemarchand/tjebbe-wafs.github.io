@@ -5,12 +5,13 @@ import { dom } from './dom.js';
 import { state } from './state.js';
 import { api } from './api.js';
 import { router } from './router.js';
+import { data } from './data.js';
 /* beautify preserve:end */
 
 // Render actor
 export const render = {
     homePage: function () {
-        dom.app.classList.add('background-image');
+        dom.app.classList.add('homepage-background');
         const homePage = `
             <form id="searchForm">
                 <h2>Search for any type of recipe</h2>
@@ -19,19 +20,29 @@ export const render = {
             </form>
         `;
 
+        render.clearBackBtn();
         dom.app.insertAdjacentHTML('afterbegin', homePage);
-
+        
         document.querySelector('.search-recipe').addEventListener('click', function (e) {
             e.preventDefault();
             const input = document.querySelector('#inputRecipe').value;
             if(input !== '') {
+                render.clear();
+                render.renderLoader();
                 state.data.searchTerm = input.toLowerCase();
+                // data.load();
                 api.get();
             }
         });
     },
-    // Render the recipes on the screen.
     overviewPage: function () {
+        render.clear();
+        render.clearBackBtn();
+        render.renderBackBtn('homePage');        
+        render.clearLoader();
+
+        this.documentTitle(`Recipe searcher - ${state.data.searchTerm}`);
+
         const title = document.createElement('h1');
         title.classList = 'search-results-title';
         title.textContent = `Search results for: ${state.data.searchTerm}`;
@@ -43,99 +54,90 @@ export const render = {
 
         state.data.recipes.forEach(function (recipe) {
             const recipeEl = `
-                <a href="${recipe.recipe__id}">
-                    <article class="recipe">
-                        <img src="${recipe.recipe__image}" class="recipe__img">
-                        <h3 class="recipe__title">${recipe.recipe__title.length > 20 ? recipe.recipe__title.substring(0, 20) + '...' : recipe.recipe__title}</h3>
+                <a href="#${recipe.recipe__id}" class="recipe__link">
+                    <article class="recipe-thumb">
+                        <img src="${recipe.recipe__image}" class="recipe-thumb__recipe-img">
+                        <h3 class="recipe-thumb__recipe-title">${recipe.recipe__title.length > 20 ? recipe.recipe__title.substring(0, 20) + '...' : recipe.recipe__title}</h3>
                     </article>
                 </a>
             `;
-            recipeContainer.innerHTML += recipeEl;
+            recipeContainer.insertAdjacentHTML('beforeend', recipeEl);
         });
-
-        document.title = 'Recipe searcher - Overview Page';
-        dom.app.classList.remove('background-image');
-
-        /* const recipeContainer = document.createElement('section');
-        recipeContainer.classList = 'recipeContainer';
-        dom.app.appendChild(recipeContainer);
-
-        const recipeLink = document.createElement('a');
-        // recipeLink.classList = 'recipe__id';
-        // recipeLink.href = `detailPage/${recipe.recipe__id}`;
-        dom.app.appendChild(recipeLink);
-
-        const recipeArticle = document.createElement('article');
-        recipeArticle.classList = 'recipe';
-        recipeLink.appendChild(recipeArticle);
-
-        const recipeImage = document.createElement('img');
-        recipeImage.classList = 'recipe__image';
-        recipeArticle.appendChild(recipeImage);
-
-        const recipeTitle = document.createElement('h3');
-        recipeTitle.classList = 'recipe__title';
-        recipeArticle.appendChild(recipeTitle);
-
-        const directives = {
-            // recipe__id: {
-            //     href: function () {
-            //         return "/#" + this.recipe__id;
-            //     }
-            // },
-            recipe__image: {
-                src: function () {
-                    return this.recipe__image;
-                }
-            }
-        };
-
-        Transparency.render(dom.app, state.data.recipes, directives);
-
-        const recipeLinks = document.querySelectorAll('.recipe__id');
+        
+        const recipeLinks = document.querySelectorAll('.recipe__link');
         recipeLinks.forEach(function (recipeLink) {
             recipeLink.addEventListener('click', function (e) {
-                // const id = e.target.parentNode.parentNode.href.split()
-                // console.log(e.target.parentNode.parentNode.href);
+                e.preventDefault();
+                const id = e.currentTarget.hash.split('#')[1];
+                router.detailPage(id);
             });
-        }); */
-
-        // const count = document.querySelector("main").childElementCount;
-        // console.log(count);
+        });
     },
     detailPage: function (id) {
-        // const recipe = state.data.recipes.find((recipe) => recipe.id === id);
+        render.clearBackBtn();
+        render.renderBackBtn('overviewPage');
+
+        // MOVE TO ROUTER OBJECT.
         const recipe = state.data.recipes.find(function (recipe) {
-            return recipe.id === id;
+            return recipe.recipe__id === id;
         });
 
         const recipeEl = `
-            <article>
-                <h3>${recipe.title}</h3>
-                <img src="${recipe.img}">
-                <ul>
-                    ${recipe.ingredients.forEach(function(ingredient) {
-                        `<li>${ingredient}</li>`
-                    })}
-                </ul>
-                <span>${recipe.calories}</span>
-                <ul>
-                    ${recipe.healthLabels.forEach(function(label) {
-                        `<li>${label}</li>`
-                    })}
-                </ul>
-                <span>${recipe.totalWeight}</span>
-            </article>
+            <div class="recipe-details">
+                <div class="recipe-details__image-container">
+                    <img class="recipe-details__image" src="${recipe.recipe__image}">
+                </div>
+                <div class="recipe-details__content">
+                    <h1 class="recipe-details__title">${recipe.recipe__title}</h1>
+                    <div class="recipe-details__ingredients">
+                        <h3 class="ingredients__title">Ingredients</h3>
+                        <ul class="ingredients__list">
+                            ${recipe.recipe__ingredients.map((ingredient) => `<li>${ingredient}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="recipe-details__info">
+                        <ul class="info__details">
+                            <li>Calories: ${Math.round(recipe.recipe__calories)} kcal</li>
+                            <li>Total weight: ${Math.round(recipe.recipe__totalWeight)} grams</li>
+                        </ul>
+                        <span>Source: ${recipe.recipe__source}</span>
+                    </div>
+                </div>
+            </div>
         `;
 
         dom.app.insertAdjacentHTML('afterbegin', recipeEl);
     },
+    documentTitle: function(title) {
+        document.title = title;
+    },
     // Clear the container.
     clear: function () {
-        const node = dom.app;
-        while (node.hasChildNodes()) {
-            node.removeChild(node.firstChild);
+        if(dom.app.classList.contains('homepage-background')) dom.app.classList.remove('homepage-background');
+        while (dom.app.hasChildNodes()) {
+            dom.app.removeChild(dom.app.firstChild);
         }
+    },
+    renderBackBtn: function(page) {
+        const backBtn = `<img class="page-back" src="../../../public/img/back-arrow.svg">`;
+        dom.body.insertAdjacentHTML('afterbegin', backBtn);
+
+        dom.body.querySelector('.page-back').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            switch(page) {
+                case 'overviewPage':
+                  router.overviewPage();
+                  break;
+                case 'homePage':
+                    router.homePage();
+                    break;
+            }
+        });
+    },
+    clearBackBtn: function() {
+        const backBtn = document.querySelector('.page-back');
+        if(backBtn) backBtn.parentElement.removeChild(backBtn);
     },
     renderLoader: function () {
         const loader = `
@@ -154,3 +156,53 @@ export const render = {
         if(loader) loader.parentElement.removeChild(loader);
     }
 };
+
+/* export const limitRecipeTitle = (title, limit = 17) => {
+    const newTitle = [];
+    if(title.length > limit) {
+        // Split the sentence into an array.
+        title.split(' ').reduce((acc, cur) => {
+            // Push the new word into a new array if it's not bigger then 17.
+            if(acc + cur.length <= limit) {
+                newTitle.push(cur);
+            }
+            return acc + cur.length;
+        }, 0);
+        
+        // Return the result.
+        return `${newTitle.join(' ')} ...`;
+    }
+    return title;
+}; */
+
+// RENDER TEMPLATE
+/* const recipeLink = document.createElement('a');
+recipeLink.classList = 'recipe__id';
+dom.app.appendChild(recipeLink);
+
+const recipeArticle = document.createElement('article');
+recipeArticle.classList = 'recipe';
+recipeLink.appendChild(recipeArticle);
+
+const recipeImage = document.createElement('img');
+recipeImage.classList = 'recipe__image';
+recipeArticle.appendChild(recipeImage);
+
+const recipeTitle = document.createElement('h3');
+recipeTitle.classList = 'recipe__title';
+recipeArticle.appendChild(recipeTitle);
+
+const directives = {
+    // recipe__id: {
+    //     href: function () {
+    //         return "/#" + this.recipe__id;
+    //     }
+    // },
+    recipe__image: {
+        src: function () {
+            return this.recipe__image;
+        }
+    }
+};
+
+Transparency.render(dom.app, state.data.recipes, directives); */

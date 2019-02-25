@@ -1,9 +1,10 @@
 'use strict';
 
+/* beautify preserve:start */
 import { state } from './state.js';
 import { data } from './data.js';
 import { router } from './router.js';
-import { render } from './render.js';
+/* beautify preserve:end */
 
 // API object
 export const api = {
@@ -24,37 +25,17 @@ export const api = {
         return url;
     },
     // Get new recipes from the api.
-    get: function (url = this.createURL()) {
-        render.renderLoader();
-        const getData = new Promise(function (resolve, reject) {
-                let request = new XMLHttpRequest();
-                request.open('GET', url, true)
+    get: async function (url = this.createURL()) {
+        const response = await fetch(url);
 
-                request.onload = function () {
-                    if (request.status >= 200 && request.status < 400) {
-                        const dataResponse = data.parse(this.response);
-                        resolve(dataResponse);
-                    } else {
-                        reject(error);
-                    }
-                };
-
-                request.onerror = function () {
-                    console.error('Error with loading the data');
-                };
-
-                request.send();
-            })
-            .then(function (dataResponse) {
-                const extracedData = data.extract(dataResponse);
-                return extracedData;
-            })
-            .then(function (extracedData) {
-                data.store(extracedData);
-            })
-            .then(function () {
-                router.overviewPage();
-                render.clearLoader();
-            });
+        if (response.status >= 200 && response.status < 400) {
+            const responseData = await data.parse(response);
+            const extracedData = await data.extract(responseData);
+            await data.store(extracedData);
+            await data.save()
+            await router.overviewPage();
+        } else {
+            throw new Error('Unable to get the recipes');
+        }
     }
 };
