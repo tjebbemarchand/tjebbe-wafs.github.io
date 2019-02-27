@@ -12,7 +12,6 @@ export const app = {
     },
     state: {
         data: {
-            searchTerm: '',
             recipes: []
         }
     }

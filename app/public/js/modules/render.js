@@ -30,11 +30,11 @@ export const render = {
         });
     },
     overviewPage: function (recipes) {
-        this.documentTitle(`Recipe searcher - ${app.state.data.searchTerm}`);
+        this.documentTitle(`Recipe searcher - ${api.entries.q}`);
 
         const title = document.createElement('h1');
         title.classList = 'search-results-title';
-        title.textContent = `Search results for: ${app.state.data.searchTerm}`;
+        title.textContent = `Search results for: ${api.entries.q}`;
         app.dom.app.appendChild(title);
         
         const recipeContainer = document.createElement('section');
@@ -42,14 +42,24 @@ export const render = {
         app.dom.app.appendChild(recipeContainer);
 
         recipes.forEach(function (recipe) {
-            const recipeEl = `
+            /* const recipeEl = `
                 <a href="#${recipe.recipe__id}" class="recipe__link">
                     <article class="recipe-thumb">
                         <img src="${recipe.recipe__image}" class="recipe-thumb__recipe-img">
                         <h3 class="recipe-thumb__recipe-title">${recipe.recipe__title.length > 20 ? recipe.recipe__title.substring(0, 20) + '...' : recipe.recipe__title}</h3>
                     </article>
                 </a>
+            `; */
+
+            const recipeEl = `
+                <a href="#${recipe.recipe__id}" class="recipe__link">
+                    <article class="recipe-thumb">
+                        <img src="${recipe.recipe__image}" class="recipe-thumb__recipe-img">
+                        <h3 class="recipe-thumb__recipe-title">${render.limitRecipeTitle(recipe.recipe__title)}</h3>
+                    </article>
+                </a>
             `;
+
             recipeContainer.insertAdjacentHTML('beforeend', recipeEl);
         });
         
@@ -59,7 +69,6 @@ export const render = {
                 e.preventDefault();
                 const id = e.currentTarget.hash.split('#')[1];
                 window.location.hash = `/detailPage/${id}`;
-                // router.detailPage(id);
             });
         });
     },
@@ -90,6 +99,19 @@ export const render = {
 
         app.dom.app.insertAdjacentHTML('afterbegin', recipeEl);
     },
+    limitRecipeTitle: function (title, limit = 20) {
+        const newTitle = [];
+        if (title.length > limit) {
+            title.split(' ').reduce(function(acc, cur) {
+                if (acc + cur.length <= limit) {
+                    newTitle.push(cur);
+                }
+                return acc + cur.length;
+            }, 0);
+            return `${newTitle.join(' ')}...`;
+        }
+        return title;
+    },
     documentTitle: function(title) {
         document.title = title;
     },
@@ -100,27 +122,6 @@ export const render = {
             app.dom.app.removeChild(app.dom.app.firstChild);
         }
     },
-    // renderBackBtn: function(page) {
-    //     const backBtn = `<img class="page-back" src="../../../public/img/back-arrow.svg">`;
-    //     app.dom.body.insertAdjacentHTML('afterbegin', backBtn);
-
-    //     app.dom.body.querySelector('.page-back').addEventListener('click', function(e) {
-    //         e.preventDefault();
-            
-    //         switch(page) {
-    //             case 'overviewPage':
-    //                 window.location.hash = '/overviewPage';
-    //                 break;
-    //             case 'homePage':
-    //                 window.location.hash = '/';
-    //                 break;
-    //         }
-    //     });
-    // },
-    // clearBackBtn: function() {
-    //     const backBtn = document.querySelector('.page-back');
-    //     if(backBtn) backBtn.parentElement.removeChild(backBtn);
-    // },
     renderLoader: function () {
         const loader = `
             <div class="loader">
@@ -138,53 +139,3 @@ export const render = {
         if(loader) loader.parentElement.removeChild(loader);
     }
 };
-
-/* export const limitRecipeTitle = (title, limit = 17) => {
-    const newTitle = [];
-    if(title.length > limit) {
-        // Split the sentence into an array.
-        title.split(' ').reduce((acc, cur) => {
-            // Push the new word into a new array if it's not bigger then 17.
-            if(acc + cur.length <= limit) {
-                newTitle.push(cur);
-            }
-            return acc + cur.length;
-        }, 0);
-        
-        // Return the result.
-        return `${newTitle.join(' ')} ...`;
-    }
-    return title;
-}; */
-
-// RENDER TEMPLATE
-/* const recipeLink = document.createElement('a');
-recipeLink.classList = 'recipe__id';
-app.dom.app.appendChild(recipeLink);
-
-const recipeArticle = document.createElement('article');
-recipeArticle.classList = 'recipe';
-recipeLink.appendChild(recipeArticle);
-
-const recipeImage = document.createElement('img');
-recipeImage.classList = 'recipe__image';
-recipeArticle.appendChild(recipeImage);
-
-const recipeTitle = document.createElement('h3');
-recipeTitle.classList = 'recipe__title';
-recipeArticle.appendChild(recipeTitle);
-
-const directives = {
-    // recipe__id: {
-    //     href: function () {
-    //         return "/#" + this.recipe__id;
-    //     }
-    // },
-    recipe__image: {
-        src: function () {
-            return this.recipe__image;
-        }
-    }
-};
-
-Transparency.render(app.dom.app, app.state.data.recipes, directives); */

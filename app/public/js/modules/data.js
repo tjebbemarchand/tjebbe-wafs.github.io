@@ -22,6 +22,7 @@ export const data = {
 
         await render.clear();
         await render.overviewPage(data);
+        await this.store(data);
     },
     // Parse the recipes before use.
     parse: function (response) {
@@ -60,11 +61,16 @@ export const data = {
             });
         });
     },
+    find: async function (id) {
+        return await app.state.data.recipes.find(function (recipe) {
+            return recipe.recipe__id === id;
+        });
+    },
     // Save the recipes in localStorage.
     save: function (recipes) {
-        localStorage.setItem(app.state.data.searchTerm, JSON.stringify(recipes));
+        localStorage.setItem(api.entries.q, JSON.stringify(recipes));
     },
-    delete: function () {
-        localStorage.removeItem('recipes');
+    delete: function (data) {
+        localStorage.removeItem(data);
     }
 };

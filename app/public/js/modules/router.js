@@ -2,7 +2,6 @@
 
 import { render } from './render.js';
 import { data } from './data.js';
-import { app } from './app.js';
 import { api } from './api.js';
 
 export const router = {
@@ -17,10 +16,8 @@ export const router = {
                 render.renderLoader();
                 data.handle();
             },
-            '/detailPage/:id': function (id) {
-                const recipe = app.state.data.recipes.find(function (recipe) {
-                    return recipe.recipe__id === id;
-                });
+            '/detailPage/:id': async function (id) {
+                const recipe = await data.find(id);
                 render.clear();
                 render.detailPage(recipe);
             }
