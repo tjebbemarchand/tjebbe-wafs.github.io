@@ -54,13 +54,13 @@ Below you will find all the actors and functions in use in my application.
 <details>
 <summary>First iteration</summary>
 
-![First iteration actor diagram](./docs/actor-diagam-1.jpg)
+![First iteration actor diagram](./docs/actor-diagram-1.jpg)
 </details>
 
 <details>
 <summary>Second iteration</summary>
 
-![Second iteration actor diagram](./docs/actor-diagam-2.jpg)
+![Second iteration actor diagram](./docs/actor-diagram-2.jpg)
 </details>
 
 ## 6. Interaction Diagram
