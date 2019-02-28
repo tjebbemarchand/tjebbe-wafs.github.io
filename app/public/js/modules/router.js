@@ -24,9 +24,9 @@ export const router = {
             },
             // Detail page
             '/detailPage/:id': async function (id) {
-                const recipe = await data.find(id);
-                render.clear();
-                render.detailPage(recipe);
+                const recipe = await data.find(id); // Call the find function to get the recipe based on the id.
+                render.clear(); // Clear the page.
+                render.detailPage(recipe); // Render the detail page with the recipe.
             }
         });
     }

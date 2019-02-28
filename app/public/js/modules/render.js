@@ -1,12 +1,13 @@
 'use strict';
 
+// Imports
 import { app } from './app.js';
 import { data } from './data.js';
 import { api } from './api.js';
 
 // Export object - render.
 export const render = {
-    // Render homePage function.
+    // Function: Render the homepage.
     homePage: function () {
         app.dom.app.classList.add('homepage-background'); // Give the main a class for the background.
 
@@ -32,50 +33,58 @@ export const render = {
             }
         });
     },
+    // Function(default parameter from the object): Render the overview page.
     overviewPage: function (recipes = app.state.data.recipes) {
-        this.documentTitle(`Recipe searcher - ${api.entries.q}`);
+        this.documentTitle(`Recipe searcher - ${api.entries.q}`); // Change the document title.
 
+        // Create the title for the page.
         const title = document.createElement('h1');
         title.classList = 'search-results-title';
-        title.textContent = `Search results for: ${api.entries.q}`;
+        title.textContent = `Search results for: ${api.entries.q}`; // Get the input from the api entries.
         app.dom.app.appendChild(title);
         
+        // Create a container for all the recipes.
         const recipeContainer = document.createElement('section');
         recipeContainer.classList = 'recipe-container';
         app.dom.app.appendChild(recipeContainer);
 
-        // Filter input
+        // Create filters for the page.
         const filterInput = document.createElement('input');
         filterInput.type = 'text';
         filterInput.placeholder = 'Filter search results';
         filterInput.classList = 'filter-search-results';
 
+        // Create a reset to get all the recipes back on the page.
         const filterInputReset = document.createElement('button');
         filterInputReset.innerHTML = 'Reset filter';
         filterInputReset.classList = 'filter-search-results-reset';
 
-        // Sort buttons
+        // Create different sort buttons to sort the recipes.
         const filterEl = document.createElement('div');
         filterEl.classList = 'recipe-filters';
 
+        // Sort button for a to z.
         const sortBtn1 = document.createElement('button');
         sortBtn1.type = 'button';
         sortBtn1.classList = 'sort-by-title__a-z'
         sortBtn1.innerHTML = 'Sort by title (a - z)';
         
+        // Sort button for z to a.
         const sortBtn2 = document.createElement('button');
         sortBtn2.type = 'button';
         sortBtn2.classList = 'sort-by-title__z-a'
         sortBtn2.innerHTML = 'Sort by title (z - a)';
 
-        // Render elements on the screen
+        // Render the filter and sort buttons on the screen.
         recipeContainer.appendChild(filterEl);
         filterEl.appendChild(filterInput);
         filterEl.appendChild(filterInputReset);
         filterEl.appendChild(sortBtn1);
         filterEl.appendChild(sortBtn2);
 
+        // Loop over the recipes to render it on the page.
         recipes.forEach(function (recipe) {
+            // Create the HTML for the recipe.
             const recipeEl = `
                 <a href="#${recipe.recipe__id}" class="recipe__link">
                     <article class="recipe-thumb">
@@ -83,51 +92,55 @@ export const render = {
                         <h3 class="recipe-thumb__recipe-title">${render.limitRecipeTitle(recipe.recipe__title)}</h3>
                     </article>
                 </a>
-            `;
+            `; // Call the limitRecipeTitle function to limit the title on the page.
 
-            recipeContainer.insertAdjacentHTML('beforeend', recipeEl);
+            recipeContainer.insertAdjacentHTML('beforeend', recipeEl); // Render the HTML on the page.
         });
 
+        // Add a event listener for the filter input.
         filterInput.addEventListener('change', async function(e) {
-            e.preventDefault();
-            const filteredData = await data.filter(e.target.value);
-            await render.clear();
-            render.overviewPage(filteredData);
+            const filteredData = await data.filter(e.target.value); // Call the filters function with the input.
+            await render.clear(); // Clear the page.
+            render.overviewPage(filteredData); // Render the overview page with the filtered data.
         });
         
+        // Add a event listener for the filter reset button.
         filterInputReset.addEventListener('click', async function(e) {
-            e.preventDefault();
-            await render.clear();
-            render.overviewPage();
+            e.preventDefault(); // Prevent the page fron reloading.
+            await render.clear(); // Clear the page.
+            render.overviewPage(); // Render the overview page with the default paramter.
         });
 
+        // Add an event listener for the a to z sort button.
         sortBtn1.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const sortedData = await data.sort('alphabetically', app.state.data.recipes);
-            debugger;
-            await data.store(sortedData);
-            await render.clear();
-            render.overviewPage();
+            e.preventDefault(); // Prevent the page from reloading.
+            const sortedData = await data.sort('alphabetically', app.state.data.recipes); // Call the sort function to sort the recipes.
+            await render.clear(); // Clear the page.
+            render.overviewPage(sortedData); // Render the overview page with the sorted data.
         });
 
+        // Add an event listener for the z to a sort button.
         sortBtn2.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const sortedData = await data.sort('reverse-alphabetically', app.state.data.recipes);
-            await data.store(sortedData);
-            await render.clear();
-            render.overviewPage();
+            e.preventDefault(); // Prevent the page from reloading. 
+            const sortedData = await data.sort('reverse-alphabetically', app.state.data.recipes); // Call the sort function to sort the recipes.
+            await render.clear(); // Clear the page.
+            render.overviewPage(sortedData); // Render the overview page with the sorted data.
         });
 
-        const recipeLinks = document.querySelectorAll('.recipe__link');
+        // Create event listeners for all the recipes.
+        const recipeLinks = document.querySelectorAll('.recipe__link'); // Get all recipes links from the page.
+        // Loop over the recipes and add an link.
         recipeLinks.forEach(function (recipeLink) {
             recipeLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                const id = e.currentTarget.hash.split('#')[1];
-                window.location.hash = `/detailPage/${id}`;
+                e.preventDefault(); // Prevent the page from reloading.
+                const id = e.currentTarget.hash.split('#')[1]; // Get the hash from the a tag.
+                window.location.hash = `/detailPage/${id}`; // Change the window hash with the id.
             });
         });
     },
+    // Function(recipe to render): render the detail page.
     detailPage: function (recipe) {
+        // Create the HTML to render.
         const recipeEl = `
             <div class="recipe-details">
                 <div class="recipe-details__image-container">
@@ -151,22 +164,30 @@ export const render = {
                 </div>
             </div>
         `;
+        // Line 154: Map over the ingredients to render them individually in a li tag.
+        // Line 159: Round the number of calories to whole numbers.
+        // Line 160: Round the number of total weigth to whole grams.
 
-        app.dom.app.insertAdjacentHTML('afterbegin', recipeEl);
+        app.dom.app.insertAdjacentHTML('afterbegin', recipeEl); // Insert the HTML into the DOM.
     },
+    // Function(title from the recipe, limit number of characters) limit the title on whole words.
     limitRecipeTitle: function (title, limit = 20) {
         const newTitle = [];
+        // Check if the title is above the limit.
         if (title.length > limit) {
+            // Split the title on the spaces.
             title.split(' ').reduce(function(acc, cur) {
+                // If the current + the next word is lower then the limit.
                 if (acc + cur.length <= limit) {
-                    newTitle.push(cur);
+                    newTitle.push(cur); // Push the word into the array.
                 }
-                return acc + cur.length;
+                return acc + cur.length; // Return the length of the current word.
             }, 0);
-            return `${newTitle.join(' ')}...`;
+            return `${newTitle.join(' ')}...`; // Add three dots on the word.
         }
         return title;
     },
+    // Function(title of the search term of recipe): change the page title.
     documentTitle: function(title) {
         document.title = title;
     },
@@ -195,7 +216,7 @@ export const render = {
         app.dom.app.insertAdjacentHTML('afterbegin', loader); // Insert HTML into the DOM.
     },
     clearLoader: function() {
-        const loader = document.querySelector('.loader');
-        if(loader) loader.parentElement.removeChild(loader);
+        const loader = document.querySelector('.loader'); // Get the loader from the DOM.
+        if(loader) loader.parentElement.removeChild(loader); // Clear the loader from the DOM if there is one.
     }
 };

@@ -80,7 +80,7 @@ As you open the application you get a form where you can fill in all sorts of re
 
 ## 7. Design and design patterns
 ### Design
-I gave the app i nice design to use for the user. As you open the page you get a homepage with a search form. Here you can fill in whatever type of recipe you want to find. If clicked on search, a loading indicator pop ups on the screen to let the user know the app is getting the data from the API. On the next page you get a overview page with all the search results ordered by default by the API. SORT FILTER
+I gave the app a nice design to use for the user. As you open the page you get a homepage with a search form. Here you can fill in whatever type of recipe you want to find. If clicked on search, a loading indicator pop ups on the screen to let the user know the app is getting the data from the API. On the next page you get a overview page with all the search results ordered by default by the API. SORT FILTER
 If you click on one of the recipes an detail page comes up with all the recipe details like the ingredients, calories etc.
 
 ### Design patterns
