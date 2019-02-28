@@ -1,16 +1,16 @@
 'use strict';
 
-/* beautify preserve:start */
 import { app } from './app.js';
 import { data } from './data.js';
-import { router } from './router.js';
 import { api } from './api.js';
-/* beautify preserve:end */
 
-// Render actor
+// Export object - render.
 export const render = {
+    // Render homePage function.
     homePage: function () {
-        app.dom.app.classList.add('homepage-background');
+        app.dom.app.classList.add('homepage-background'); // Give the main a class for the background.
+
+        // Create HTML
         const homePage = `
             <form id="searchForm">
                 <h2>Search for any type of recipe</h2>
@@ -19,17 +19,20 @@ export const render = {
             </form>
         `;
 
-        app.dom.app.insertAdjacentHTML('afterbegin', homePage);
+        app.dom.app.insertAdjacentHTML('afterbegin', homePage); // Insert HTML into the DOM.
         
+        // Create an event listener for the search recipe button.
         document.querySelector('.search-recipe').addEventListener('click', function (e) {
-            e.preventDefault();
-            const input = document.querySelector('#inputRecipe').value.toLowerCase();
+            e.preventDefault(); // Prevent the page fron loading.
+            const input = document.querySelector('#inputRecipe').value.toLowerCase(); // Get the input.
+
+            // If there is an input.
             if(input !== '') {
-                window.location.hash = `/overviewPage/${input}`;
+                window.location.hash = `/overviewPage/${input}`; // Change the hash with the input.
             }
         });
     },
-    overviewPage: function (recipes) {
+    overviewPage: function (recipes = app.state.data.recipes) {
         this.documentTitle(`Recipe searcher - ${api.entries.q}`);
 
         const title = document.createElement('h1');
@@ -41,16 +44,38 @@ export const render = {
         recipeContainer.classList = 'recipe-container';
         app.dom.app.appendChild(recipeContainer);
 
-        recipes.forEach(function (recipe) {
-            /* const recipeEl = `
-                <a href="#${recipe.recipe__id}" class="recipe__link">
-                    <article class="recipe-thumb">
-                        <img src="${recipe.recipe__image}" class="recipe-thumb__recipe-img">
-                        <h3 class="recipe-thumb__recipe-title">${recipe.recipe__title.length > 20 ? recipe.recipe__title.substring(0, 20) + '...' : recipe.recipe__title}</h3>
-                    </article>
-                </a>
-            `; */
+        // Filter input
+        const filterInput = document.createElement('input');
+        filterInput.type = 'text';
+        filterInput.placeholder = 'Filter search results';
+        filterInput.classList = 'filter-search-results';
 
+        const filterInputReset = document.createElement('button');
+        filterInputReset.innerHTML = 'Reset filter';
+        filterInputReset.classList = 'filter-search-results-reset';
+
+        // Sort buttons
+        const filterEl = document.createElement('div');
+        filterEl.classList = 'recipe-filters';
+
+        const sortBtn1 = document.createElement('button');
+        sortBtn1.type = 'button';
+        sortBtn1.classList = 'sort-by-title__a-z'
+        sortBtn1.innerHTML = 'Sort by title (a - z)';
+        
+        const sortBtn2 = document.createElement('button');
+        sortBtn2.type = 'button';
+        sortBtn2.classList = 'sort-by-title__z-a'
+        sortBtn2.innerHTML = 'Sort by title (z - a)';
+
+        // Render elements on the screen
+        recipeContainer.appendChild(filterEl);
+        filterEl.appendChild(filterInput);
+        filterEl.appendChild(filterInputReset);
+        filterEl.appendChild(sortBtn1);
+        filterEl.appendChild(sortBtn2);
+
+        recipes.forEach(function (recipe) {
             const recipeEl = `
                 <a href="#${recipe.recipe__id}" class="recipe__link">
                     <article class="recipe-thumb">
@@ -62,7 +87,37 @@ export const render = {
 
             recipeContainer.insertAdjacentHTML('beforeend', recipeEl);
         });
+
+        filterInput.addEventListener('change', async function(e) {
+            e.preventDefault();
+            const filteredData = await data.filter(e.target.value);
+            await render.clear();
+            render.overviewPage(filteredData);
+        });
         
+        filterInputReset.addEventListener('click', async function(e) {
+            e.preventDefault();
+            await render.clear();
+            render.overviewPage();
+        });
+
+        sortBtn1.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const sortedData = await data.sort('alphabetically', app.state.data.recipes);
+            debugger;
+            await data.store(sortedData);
+            await render.clear();
+            render.overviewPage();
+        });
+
+        sortBtn2.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const sortedData = await data.sort('reverse-alphabetically', app.state.data.recipes);
+            await data.store(sortedData);
+            await render.clear();
+            render.overviewPage();
+        });
+
         const recipeLinks = document.querySelectorAll('.recipe__link');
         recipeLinks.forEach(function (recipeLink) {
             recipeLink.addEventListener('click', function (e) {
@@ -117,12 +172,17 @@ export const render = {
     },
     // Clear the container.
     clear: function () {
+        // Check if the main has a class. If so remove it.
         if(app.dom.app.classList.contains('homepage-background')) app.dom.app.classList.remove('homepage-background');
+
+        // Check if the app has DOM elements.
         while (app.dom.app.hasChildNodes()) {
-            app.dom.app.removeChild(app.dom.app.firstChild);
+            app.dom.app.removeChild(app.dom.app.firstChild); // Remove every element.
         }
     },
+    // Render the loader.
     renderLoader: function () {
+        // Create HTML for the loader.
         const loader = `
             <div class="loader">
                 <svg viewBox="0 0 456 488" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.41421">
@@ -132,7 +192,7 @@ export const render = {
                 </svg>
             </div>
         `;
-        app.dom.app.insertAdjacentHTML('afterbegin', loader);
+        app.dom.app.insertAdjacentHTML('afterbegin', loader); // Insert HTML into the DOM.
     },
     clearLoader: function() {
         const loader = document.querySelector('.loader');

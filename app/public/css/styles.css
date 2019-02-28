@@ -15,10 +15,9 @@ main {
     position: relative;
 }
 
-#page-back {
-    content: "back";
-}
-
+/*********
+Homepage
+*********/
 .homepage-background {
     width: 100%;
     height: 100vh;
@@ -37,7 +36,7 @@ main form {
     transform: translate(-50%, -50%);
     background-color: rgba(255, 255, 255, 0.9);
     padding: 20px;
-    width: 30%;
+    width: 500px;
     border-radius: 5px;
 }
 
@@ -78,9 +77,12 @@ main form button:hover {
     background-color: #cc8718;
 }
 
+/*********
+Overviewpage
+*********/
 .search-results-title {
     text-align: center;
-    font-size: 24px;
+    font-size: 22px;
     color: #e6981c;
     font-weight: normal;
     margin: 20px 0;
@@ -100,11 +102,16 @@ main form button:hover {
 .recipe-thumb {
     background-color: #fff;
     box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1);
-    transition: 200ms box-shadow ease;
+    overflow: hidden;
 }
 
-.recipe-thumb:hover {
-    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.4);
+.recipe-thumb .recipe-thumb__recipe-img {
+    transition: 250ms all ease;
+}
+
+.recipe-thumb:hover .recipe-thumb__recipe-img {
+    transform: scale(1.1);
+    transform-origin: bottom;
 }
 
 .recipe-thumb__recipe-img {
@@ -118,17 +125,58 @@ main form button:hover {
     color: black;
 }
 
+/* Recipe filters */
+.recipe-filters {
+    position: absolute;
+    top: 0;
+    right: 20px;
+}
 
+.recipe-filters .sort-by-title__a-z,
+.recipe-filters .sort-by-title__z-a {
+    background-color: #e6981c;
+    border: none;
+    padding: 5px 10px;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
 
+.recipe-filters .filter-search-results {
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.3);
+}
 
+.filter-search-results-reset {
+    background-color: #e62a1c;
+    border: none;
+    padding: 5px 10px;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
 
+.recipe-filters > * {
+    margin-left: 10px;
+}
 
+.recipe-filters .filter-search-results-reset:hover {
+    background-color: #9c1309;
+}
 
+.recipe-filters .sort-by-title__a-z:hover,
+.recipe-filters .sort-by-title__z-a:hover {
+    background-color: #cc8718;
+}
 
-
-
-
-/* RECIPE DETAILS */
+/*********
+Detail page
+*********/
 .recipe-details {
     background-color: #fff;
     width: 30%;
@@ -174,35 +222,6 @@ main form button:hover {
     list-style: none;
     padding: 0;
     margin: 0;
-}
-
-
-
-
-
-
-.page-back {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 40px;
-    height: auto;
-    cursor: pointer;
-    z-index: 1;
-}
-
-.full-width-image {
-    background-color: #eceae6;
-    position: relative;
-    padding-bottom: 250px;
-    overflow: hidden;
-}
-
-.full-width-image img {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 100%;
 }
 
 /* Loader */
