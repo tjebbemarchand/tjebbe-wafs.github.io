@@ -33,7 +33,6 @@ export const api = {
         if (response.status >= 200 && response.status < 400) {
             const responseData = await data.parse(response); // Parse the response data.
             const extracedData = await data.extract(responseData); // Get only the relevent data.
-            await data.save(extracedData); // Save the data in local storage.
             return extracedData; // Return the filtered data.
         } else {
             throw new Error('Unable to get the recipes'); // Throw a error.

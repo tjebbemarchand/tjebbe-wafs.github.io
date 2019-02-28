@@ -23,9 +23,12 @@ export const data = {
             data = recipes; // Store API data in the variable.
         }
 
-        await render.clear(); // Clear the DOM.
+        // If there is data.
+        if(data.length > 0) {
+            await this.save(data); // Save it to local storage.
+        }
+
         await this.store(data); // Store the results in a local object.
-        await render.overviewPage(); // Render the overview page.
     },
     // Function(response data): convert the response data.
     parse: function (response) {

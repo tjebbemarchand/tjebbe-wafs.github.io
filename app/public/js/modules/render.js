@@ -170,6 +170,30 @@ export const render = {
 
         app.dom.app.insertAdjacentHTML('afterbegin', recipeEl); // Insert the HTML into the DOM.
     },
+    // Function: If there are no results, render an message.
+    noResults: function () {
+        // Create the HTML.
+        const noResults = `
+            <div class="no-results">
+                <h2 class="no-results__message">There are no results for: ${api.entries.q}</h2>
+            </div>
+        `;
+    
+        app.dom.app.insertAdjacentHTML('afterbegin', noResults); // Render the HTML on the page.
+    },
+    // Function: render a 404 page.
+    errorPage: function () {
+        // Create the HTML for the 404 page.
+        const error = `
+            <div class="error">
+                <h1 class="error__title">404 page not found</h1>
+                <p class="error__description">Oops. Page not found. Click this link to return to the  <a href="/">homepage</a>.</p>
+            </div>
+        `;
+        
+        app.dom.body.classList = 'background-error'; // Give the body a class.
+        app.dom.app.insertAdjacentHTML('afterbegin', error); // Render the HTML on the page.
+    },
     // Function(title from the recipe, limit number of characters) limit the title on whole words.
     limitRecipeTitle: function (title, limit = 20) {
         const newTitle = [];
@@ -195,6 +219,7 @@ export const render = {
     clear: function () {
         // Check if the main has a class. If so remove it.
         if(app.dom.app.classList.contains('homepage-background')) app.dom.app.classList.remove('homepage-background');
+        if(app.dom.body.classList.contains('background-error')) app.dom.body.classList.remove('background-error');
 
         // Check if the app has DOM elements.
         while (app.dom.app.hasChildNodes()) {
