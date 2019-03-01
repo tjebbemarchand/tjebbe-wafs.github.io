@@ -3,7 +3,6 @@
 // Imports
 import { app } from './app.js';
 import { api } from './api.js';
-import { render } from './render.js';
 
 // Export object - data.
 export const data = {
